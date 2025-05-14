@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: ComTec Hub
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ComTecHub
+    username: postgres
+    password: 40028922Ph.971
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-aql: true
+    hibernate:
+     ddl-auto: update
