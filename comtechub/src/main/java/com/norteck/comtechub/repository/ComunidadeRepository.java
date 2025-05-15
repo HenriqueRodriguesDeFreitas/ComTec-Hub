@@ -13,5 +13,5 @@ public interface ComunidadeRepository extends JpaRepository<Comunidade, Integer>
     List<Comunidade> findByNomeContaining(String nome);
     List<Comunidade> findByTipoComunidade(TipoComunidade tipoComunidade);
     List<Comunidade> findByDescricaoContaining(String descricao);
-    List<Comunidade> findByUsuarioComunidadeUsuarioContaining(Usuario usuario);
+    List<Comunidade> findByUsuarioComunidadeUsuario(Usuario usuario);
 }

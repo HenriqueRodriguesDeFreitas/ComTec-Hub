@@ -9,6 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UsuarioComunidadeRepository extends JpaRepository<UsuarioComunidade, UUID> {
-    List<Usuario> findByUsuarioComunidadeComunidade(Comunidade comunidade);
+    List<Usuario> findByComunidade(Comunidade comunidade);
 
 }
