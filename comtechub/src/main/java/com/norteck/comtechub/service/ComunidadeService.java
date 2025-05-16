@@ -72,6 +72,12 @@ public class ComunidadeService {
         return convertObjectToDto(comunidadeRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("Comunidade não encontrada")));
     }
+
+    public List<ComunidadeResponseDTO> findByNomeContaining(String nome){
+        return comunidadeRepository.findByNomeContainingIgnoreCase(nome)
+                .stream().map(this::convertObjectToDto).collect(Collectors.toList());
+    }
+
     private void comunidadePrivada(Comunidade comunidade) {
         if (comunidade.getTipoComunidade().equals(TipoComunidade.PRIVADO)
                 && comunidade.getCodigoAcesso() == null) {
