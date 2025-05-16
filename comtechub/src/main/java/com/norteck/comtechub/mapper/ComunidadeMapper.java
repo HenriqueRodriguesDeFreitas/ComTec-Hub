@@ -9,5 +9,5 @@ import org.mapstruct.Mapper;
 public interface ComunidadeMapper {
 
     Comunidade comunidadeDtoToComunidade(ComunidadeRequestDTO dto);
-    ComunidadeResponseDTO comunidadeToComunidadeDto(Comunidade comunidade);
+
 }

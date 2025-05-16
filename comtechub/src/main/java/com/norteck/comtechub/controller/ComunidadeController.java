@@ -22,8 +22,12 @@ public class ComunidadeController {
 
     @PostMapping("/{id}")
     public ResponseEntity<?> save(@PathVariable("id") UUID id, @RequestBody ComunidadeRequestDTO dto) {
-        var request = comunidadeMapper.comunidadeDtoToComunidade(dto);
-        var response = comunidadeMapper.comunidadeToComunidadeDto(comunidadeService.save(id, request));
-        return ResponseEntity.ok(response);
+       var comunidade = comunidadeMapper.comunidadeDtoToComunidade(dto);
+        return ResponseEntity.ok(comunidadeService.save(id, comunidade));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable("id") UUID id){
+        return ResponseEntity.ok(comunidadeService.findById(id));
     }
 }
