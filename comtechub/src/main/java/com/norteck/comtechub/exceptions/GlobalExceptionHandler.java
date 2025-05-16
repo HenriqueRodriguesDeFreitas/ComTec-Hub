@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         ExceptionResponseDTO erro = new ExceptionResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.value(),
-                "Já existente.",
+                "Erro de conflito.",
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
@@ -41,15 +41,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleErroInesperado(RuntimeException ex){
+    public ResponseEntity<?> handleErroInesperado(RuntimeException ex) {
         ExceptionResponseDTO erro = new ExceptionResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro interno",
                 "Ocorreu um erro inesperado. Entre em contato com a administração."
         );
-        return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> erros = new HashMap<>();

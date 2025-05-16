@@ -19,11 +19,11 @@ public class Mensagem {
     @Column(nullable = false)
     private LocalDateTime dataHoraMensagem;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "chat_id")
     private Chat chat;
 

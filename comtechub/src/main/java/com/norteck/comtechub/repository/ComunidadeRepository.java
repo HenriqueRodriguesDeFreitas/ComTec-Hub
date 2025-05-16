@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ComunidadeRepository extends JpaRepository<Comunidade, Integer> {
+public interface ComunidadeRepository extends JpaRepository<Comunidade, UUID> {
     Optional<Comunidade> findByNome(String nome);
     List<Comunidade> findByNomeContaining(String nome);
     List<Comunidade> findByTipoComunidade(TipoComunidade tipoComunidade);

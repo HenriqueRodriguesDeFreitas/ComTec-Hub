@@ -23,7 +23,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.PERSIST)
     private List<UsuarioComunidade> usuarioComunidades;
 
     @OneToMany(mappedBy = "usuario")

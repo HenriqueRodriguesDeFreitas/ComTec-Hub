@@ -4,23 +4,27 @@ import com.norteck.comtechub.model.enums.TipoComunidade;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_comunidade")
 public class Comunidade {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
+    @Column(nullable = false)
     private String nome;
+
     private String descricao;
     private Integer codigoAcesso;
 
     @Enumerated(EnumType.STRING)
     private TipoComunidade tipoComunidade;
 
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
@@ -28,7 +32,7 @@ public class Comunidade {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    @OneToMany(mappedBy = "comunidade")
+    @OneToMany(mappedBy = "comunidade", cascade = CascadeType.PERSIST)
     private List<UsuarioComunidade> usuarioComunidade;
 
     public Comunidade(){}
@@ -43,7 +47,7 @@ public class Comunidade {
         this.usuarioComunidade = usuarioComunidade;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -102,4 +106,6 @@ public class Comunidade {
     public void setUsuarioComunidade(List<UsuarioComunidade> usuarioComunidade) {
         this.usuarioComunidade = usuarioComunidade;
     }
+
+
 }
