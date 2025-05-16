@@ -39,6 +39,16 @@ public class UsuarioService {
                 () -> new EntityNotFoundException("Usuario não encontrado"));
     }
 
+    public Usuario findByEmail(String email){
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(()-> new EntityNotFoundException("Email não encontrado."));
+    }
+
+    public Usuario findByLogin(String login){
+        return usuarioRepository.findByLogin(login)
+                .orElseThrow(()-> new EntityNotFoundException("Usuario não encontrado"));
+    }
+
     public Usuario update(UUID id, Usuario novoUsuario) {
         Usuario usuario = findById(id);
 
