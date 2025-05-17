@@ -24,15 +24,15 @@ public class Comunidade {
     private TipoComunidade tipoComunidade;
 
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @ManyToOne
+    @ManyToOne( cascade = CascadeType.REMOVE)
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    @OneToMany(mappedBy = "comunidade", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "comunidade", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<UsuarioComunidade> usuarioComunidade;
 
     public Comunidade(){}

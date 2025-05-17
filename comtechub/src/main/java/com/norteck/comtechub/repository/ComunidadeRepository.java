@@ -6,13 +6,10 @@ import com.norteck.comtechub.model.enums.TipoComunidade;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ComunidadeRepository extends JpaRepository<Comunidade, UUID> {
-    Optional<Comunidade> findByNome(String nome);
-    List<Comunidade> findByNomeContaining(String nome);
+    List<Comunidade> findByNomeContainingIgnoreCase(String nome);
     List<Comunidade> findByTipoComunidade(TipoComunidade tipoComunidade);
-    List<Comunidade> findByDescricaoContaining(String descricao);
-    List<Comunidade> findByUsuarioComunidadeUsuario(Usuario usuario);
+    List<Comunidade> findByDescricaoIgnoreCaseContaining(String descricao);
 }

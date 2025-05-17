@@ -1,7 +1,6 @@
 package com.norteck.comtechub.mapper;
 
 import com.norteck.comtechub.dto.request.ComunidadeRequestDTO;
-import com.norteck.comtechub.dto.response.ComunidadeResponseDTO;
 import com.norteck.comtechub.model.Comunidade;
 import org.mapstruct.Mapper;
 
