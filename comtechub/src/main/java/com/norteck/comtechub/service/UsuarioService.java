@@ -4,6 +4,7 @@ import com.norteck.comtechub.exceptions.custom.ConflictException;
 import com.norteck.comtechub.exceptions.custom.EntityNotFoundException;
 import com.norteck.comtechub.model.Usuario;
 import com.norteck.comtechub.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,18 +15,24 @@ public class UsuarioService {
 
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder encoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          PasswordEncoder encoder) {
         this.usuarioRepository = usuarioRepository;
+        this.encoder = encoder;
     }
 
     public Usuario save(Usuario usuario) {
         verificarEmailOuLoginExistem(usuario);
 
+        System.out.println("Senha ciptografada: " + encoder.encode(usuario.getSenha()));
+
         Usuario novoUsuario = new Usuario();
         novoUsuario.setLogin(usuario.getLogin());
         novoUsuario.setEmail(usuario.getEmail());
-        novoUsuario.setSenha(usuario.getSenha());
+        novoUsuario.setSenha(encoder.encode(usuario.getSenha()));
 
         return usuarioRepository.save(novoUsuario);
     }
@@ -39,14 +46,14 @@ public class UsuarioService {
                 () -> new EntityNotFoundException("Usuario não encontrado"));
     }
 
-    public Usuario findByEmail(String email){
+    public Usuario findByEmail(String email) {
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(()-> new EntityNotFoundException("Email não encontrado."));
+                .orElseThrow(() -> new EntityNotFoundException("Email não encontrado."));
     }
 
-    public Usuario findByLogin(String login){
+    public Usuario findByLogin(String login) {
         return usuarioRepository.findByLogin(login)
-                .orElseThrow(()-> new EntityNotFoundException("Usuario não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
     }
 
     public Usuario update(UUID id, Usuario novoUsuario) {
