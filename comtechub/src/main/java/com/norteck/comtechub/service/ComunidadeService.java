@@ -130,8 +130,8 @@ public class ComunidadeService {
     }
 
     public void deleteByIdCascade(UUID idUsuario, UUID idComunidade) {
-        var usuario = (Usuario) verificarUsuarioExiste(idUsuario);
-        var comunidade = (Comunidade) verificarComunidadeExiste(idComunidade);
+        var usuario =  verificarUsuarioExiste(idUsuario);
+        var comunidade = verificarComunidadeExiste(idComunidade);
 
         var usuarioComunidade = usuarioComunidadeRepository.findByUsuario(usuario)
                 .stream().filter(uc -> uc.getComunidade().equals(comunidade))
@@ -177,8 +177,7 @@ public class ComunidadeService {
 
         return new ComunidadeResponseDTO(
                 comunidade.getId(), comunidade.getNome(), comunidade.getDescricao(),
-                comunidade.getCodigoAcesso(), comunidade.getTipoComunidade(), chat
-        );
+               comunidade.getTipoComunidade());
 
     }
 }

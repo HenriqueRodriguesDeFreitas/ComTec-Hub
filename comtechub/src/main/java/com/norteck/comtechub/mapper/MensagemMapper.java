@@ -12,5 +12,6 @@ public interface MensagemMapper {
     Mensagem mensagemDtoToMensagem(MensagemRequestDTO dto);
 
     @Mapping(source = "usuario.login", target = "usuario")
+    @Mapping(source = "dataHoraMensagem", target = "dataHora")
     MensagemResponseDTO mensagemToMensagemDto(Mensagem mensagem);
 }

@@ -1,7 +1,6 @@
 package com.norteck.comtechub.repository;
 
 import com.norteck.comtechub.model.Comunidade;
-import com.norteck.comtechub.model.Usuario;
 import com.norteck.comtechub.model.enums.TipoComunidade;
 import org.springframework.data.jpa.repository.JpaRepository;
 
