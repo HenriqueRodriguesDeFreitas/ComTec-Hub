@@ -1,10 +1,12 @@
 package com.norteck.comtechub.service;
 
 import com.norteck.comtechub.dto.response.ChatResponseDTO;
+import com.norteck.comtechub.dto.response.ComunidadeComChatResponseDTO;
 import com.norteck.comtechub.dto.response.ComunidadeResponseDTO;
 import com.norteck.comtechub.dto.response.MensagemResponseDTO;
 import com.norteck.comtechub.exceptions.custom.ConflictException;
 import com.norteck.comtechub.exceptions.custom.EntityNotFoundException;
+import com.norteck.comtechub.mapper.ComunidadeMapper;
 import com.norteck.comtechub.mapper.MensagemMapper;
 import com.norteck.comtechub.model.*;
 import com.norteck.comtechub.model.enums.RoleNaComunidade;
@@ -27,19 +29,21 @@ public class ComunidadeService {
     private final UsuarioComunidadeRepository usuarioComunidadeRepository;
     private final ComunidadeRepository comunidadeRepository;
     private final MensagemRepository mensagemRepository;
-
+    private final ComunidadeMapper comunidadeMapper;
     private final MensagemMapper mensagemMapper;
 
     public ComunidadeService(UsuarioRepository usuarioRepository,
                              UsuarioComunidadeRepository usuarioComunidadeRepository,
                              ComunidadeRepository comunidadeRepository,
                              MensagemRepository mensagemRepository,
-                             MensagemMapper mensagemMapper) {
+                             MensagemMapper mensagemMapper,
+                             ComunidadeMapper comunidadeMapper) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioComunidadeRepository = usuarioComunidadeRepository;
         this.comunidadeRepository = comunidadeRepository;
         this.mensagemRepository = mensagemRepository;
         this.mensagemMapper = mensagemMapper;
+        this.comunidadeMapper = comunidadeMapper;
     }
 
     @Transactional
@@ -94,9 +98,12 @@ public class ComunidadeService {
         return convertObjectToDto(comunidadeRepository.save(comunidade));
     }
 
-    public ComunidadeResponseDTO findById(UUID id) {
-        return convertObjectToDto(comunidadeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Comunidade não encontrada")));
+    public ComunidadeComChatResponseDTO findById(UUID idComunidade) {
+        Comunidade comunidade = comunidadeRepository.findById(idComunidade)
+                .orElseThrow(() -> new EntityNotFoundException("Comunidade não encontrada"));
+
+        return comunidadeMapper.comunidadeToComunidadeComChatDto(comunidade);
+
     }
 
     public List<ComunidadeResponseDTO> findByNomeContaining(String nome) {
@@ -105,8 +112,7 @@ public class ComunidadeService {
     }
 
     public List<ComunidadeResponseDTO> findAll() {
-        return comunidadeRepository.findAll()
-                .stream().map(this::convertObjectToDto).collect(Collectors.toList());
+        return comunidadeMapper.comunidadesToComunidadeDto(comunidadeRepository.findAll());
     }
 
     public List<ComunidadeResponseDTO> findByTipoComunidade(String tipo) {
