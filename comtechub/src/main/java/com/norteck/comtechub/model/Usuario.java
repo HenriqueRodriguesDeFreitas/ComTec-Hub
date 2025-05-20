@@ -1,5 +1,6 @@
 package com.norteck.comtechub.model;
 
+import com.norteck.comtechub.model.enums.RoleUsuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
@@ -16,6 +17,7 @@ public class Usuario {
 
     @Column(unique = true, nullable = false)
     private String login;
+
     @Column(nullable = false)
     private String senha;
 
@@ -23,18 +25,28 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Enumerated(EnumType.STRING) // Mapeia o enum como string no BD
+    @Column(nullable = false)
+    private RoleUsuario role; // Agora é um campo único (não lista)
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.PERSIST)
     private List<UsuarioComunidade> usuarioComunidades;
 
     @OneToMany(mappedBy = "usuario")
     private List<Mensagem> mensagens;
 
-    public Usuario(){}
+    // Construtores
+    public Usuario() {
+        this.role = RoleUsuario.CADASTRADO; // Valor padrão
+    }
 
-    public Usuario(String login, String senha, String email) {
+    public Usuario(String login, String senha, String email, List<RoleUsuario> roleUsuario,
+                   List<UsuarioComunidade> usuarioComunidades, List<Mensagem> mensagens) {
         this.login = login;
         this.senha = senha;
         this.email = email;
+        this.usuarioComunidades = usuarioComunidades;
+        this.mensagens = mensagens;
     }
 
     public UUID getId() {
@@ -71,6 +83,14 @@ public class Usuario {
 
     public void setUsuarioComunidades(List<UsuarioComunidade> usuarioComunidades) {
         this.usuarioComunidades = usuarioComunidades;
+    }
+
+    public RoleUsuario getRole() {
+        return role;
+    }
+
+    public void setRole(RoleUsuario role) {
+        this.role = role;
     }
 
     public List<Mensagem> getMensagens() {

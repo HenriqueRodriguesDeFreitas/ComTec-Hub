@@ -13,14 +13,13 @@ public class UsuarioComunidade {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @JoinColumn(name = "usuario_id")
+    @ManyToOne(cascade = {CascadeType.PERSIST})
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "comunidade_id")
     private Comunidade comunidade;
-
 
     @Enumerated(EnumType.STRING)
     private RoleNaComunidade roleNaComunidade;

@@ -2,11 +2,11 @@ package com.norteck.comtechub.config;
 
 import com.norteck.comtechub.security.CustomUserDetailsService;
 import com.norteck.comtechub.service.UsuarioService;
-import org.hibernate.mapping.UserDefinedArrayType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,9 +14,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 public class SecurityConfig {
 
     @Bean
@@ -25,20 +27,22 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
-                .authorizeHttpRequests(authorize-> {
-                    authorize.requestMatchers(HttpMethod.POST,"/usuarios").permitAll();
+                .authorizeHttpRequests(authorize -> {
+                    authorize.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
+                    authorize.requestMatchers(HttpMethod.GET, "/comunidades").permitAll();
                     authorize.anyRequest().authenticated();
                 }).build();
 
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UsuarioService usuarioService){
+    @Transactional
+    public UserDetailsService userDetailsService(UsuarioService usuarioService) {
         return new CustomUserDetailsService(usuarioService);
     }
 

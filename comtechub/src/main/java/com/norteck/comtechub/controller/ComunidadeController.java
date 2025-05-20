@@ -2,10 +2,13 @@ package com.norteck.comtechub.controller;
 
 import com.norteck.comtechub.dto.request.ComunidadeRequestDTO;
 import com.norteck.comtechub.mapper.ComunidadeMapper;
+import com.norteck.comtechub.security.SecurityService;
 import com.norteck.comtechub.service.ComunidadeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,16 +20,21 @@ public class ComunidadeController {
 
     private final ComunidadeService comunidadeService;
     private final ComunidadeMapper comunidadeMapper;
-
-    public ComunidadeController(ComunidadeService comunidadeService, ComunidadeMapper comunidadeMapper) {
+    private final SecurityService securityService;
+    public ComunidadeController(ComunidadeService comunidadeService,
+                                ComunidadeMapper comunidadeMapper,
+                                SecurityService securityService) {
         this.comunidadeService = comunidadeService;
         this.comunidadeMapper = comunidadeMapper;
+        this.securityService = securityService;
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<?> save(@PathVariable("id") UUID id, @RequestBody @Valid ComunidadeRequestDTO dto) {
+    @PreAuthorize("hasRole('CADASTRADO')")
+    @PostMapping
+    public ResponseEntity<?> save(@RequestBody @Valid ComunidadeRequestDTO dto,
+                                  Authentication authentication) {
        var comunidade = comunidadeMapper.comunidadeDtoToComunidade(dto);
-        return ResponseEntity.ok(comunidadeService.save(id, comunidade));
+        return ResponseEntity.ok(comunidadeService.save(comunidade));
     }
 
     @GetMapping

@@ -15,9 +15,11 @@ import com.norteck.comtechub.repository.ComunidadeRepository;
 import com.norteck.comtechub.repository.MensagemRepository;
 import com.norteck.comtechub.repository.UsuarioComunidadeRepository;
 import com.norteck.comtechub.repository.UsuarioRepository;
+import com.norteck.comtechub.security.SecurityService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,25 +33,27 @@ public class ComunidadeService {
     private final MensagemRepository mensagemRepository;
     private final ComunidadeMapper comunidadeMapper;
     private final MensagemMapper mensagemMapper;
+    private final SecurityService securityService;
 
     public ComunidadeService(UsuarioRepository usuarioRepository,
                              UsuarioComunidadeRepository usuarioComunidadeRepository,
                              ComunidadeRepository comunidadeRepository,
                              MensagemRepository mensagemRepository,
                              MensagemMapper mensagemMapper,
-                             ComunidadeMapper comunidadeMapper) {
+                             ComunidadeMapper comunidadeMapper,
+                             SecurityService securityService) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioComunidadeRepository = usuarioComunidadeRepository;
         this.comunidadeRepository = comunidadeRepository;
         this.mensagemRepository = mensagemRepository;
         this.mensagemMapper = mensagemMapper;
         this.comunidadeMapper = comunidadeMapper;
+        this.securityService = securityService;
     }
 
     @Transactional
-    public ComunidadeResponseDTO save(UUID idUsuario, Comunidade comunidade) {
-        var usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrao"));
+    public ComunidadeResponseDTO save(Comunidade comunidade) {
+        var usuario = securityService.obterUsuarioAutenticado();
 
         Comunidade novaComunidade = new Comunidade();
         novaComunidade.setNome(comunidade.getNome());
@@ -61,11 +65,18 @@ public class ComunidadeService {
 
         Chat chat = new Chat();
         chat.setComunidade(novaComunidade);
-
-        UsuarioComunidade usuarioComunidade = new UsuarioComunidade(
-                usuario, novaComunidade, RoleNaComunidade.ADMIN);
         novaComunidade.setChat(chat);
-        novaComunidade.setUsuarioComunidade(List.of(usuarioComunidade));
+
+        UsuarioComunidade usuarioComunidade = new UsuarioComunidade();
+        usuarioComunidade.setUsuario(usuario);
+        usuarioComunidade.setComunidade(novaComunidade);
+        usuarioComunidade.setRoleNaComunidade(RoleNaComunidade.ADMIN);
+
+
+        List<UsuarioComunidade> usuarioComunidades = new ArrayList<>();
+        usuarioComunidades.add(usuarioComunidade);
+
+        novaComunidade.setUsuarioComunidade(usuarioComunidades);
         return convertObjectToDto(comunidadeRepository.save(novaComunidade));
     }
 
