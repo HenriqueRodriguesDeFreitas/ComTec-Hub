@@ -1,5 +1,6 @@
 package com.norteck.comtechub.config;
 
+import com.norteck.comtechub.repository.UsuarioRepository;
 import com.norteck.comtechub.security.CustomUserDetailsService;
 import com.norteck.comtechub.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +43,7 @@ public class SecurityConfig {
 
     @Bean
     @Transactional
-    public UserDetailsService userDetailsService(UsuarioService usuarioService) {
+    public UserDetailsService userDetailsService(UsuarioRepository usuarioService) {
         return new CustomUserDetailsService(usuarioService);
     }
 

@@ -54,6 +54,7 @@ public class ComunidadeService {
     @Transactional
     public ComunidadeResponseDTO save(Comunidade comunidade) {
         var usuario = securityService.obterUsuarioAutenticado();
+        usuarioNaoAutenticado(usuario);
 
         Comunidade novaComunidade = new Comunidade();
         novaComunidade.setNome(comunidade.getNome());
@@ -77,12 +78,14 @@ public class ComunidadeService {
         usuarioComunidades.add(usuarioComunidade);
 
         novaComunidade.setUsuarioComunidade(usuarioComunidades);
-        return convertObjectToDto(comunidadeRepository.save(novaComunidade));
+        return comunidadeMapper.comunidadeToComunidadeDto(comunidadeRepository.save(novaComunidade));
     }
 
     @Transactional
-    public ComunidadeResponseDTO update(UUID idUsuario, UUID idComunidade, Comunidade comunidadeUpdate) {
-        var usuario = verificarUsuarioExiste(idUsuario);
+    public ComunidadeResponseDTO update(UUID idComunidade, Comunidade comunidadeUpdate) {
+        var usuario = securityService.obterUsuarioAutenticado();
+        usuarioNaoAutenticado(usuario);
+
         var comunidade = verificarComunidadeExiste(idComunidade);
 
         var usuarioComunidade = usuarioComunidadeRepository.findByUsuario(usuario)
@@ -106,20 +109,18 @@ public class ComunidadeService {
         }
 
         comunidadePrivada(comunidade);
-        return convertObjectToDto(comunidadeRepository.save(comunidade));
+        return comunidadeMapper.comunidadeToComunidadeDto(comunidadeRepository.save(comunidade));
     }
 
-    public ComunidadeComChatResponseDTO findById(UUID idComunidade) {
-        Comunidade comunidade = comunidadeRepository.findById(idComunidade)
-                .orElseThrow(() -> new EntityNotFoundException("Comunidade não encontrada"));
-
-        return comunidadeMapper.comunidadeToComunidadeComChatDto(comunidade);
+    public ComunidadeResponseDTO findById(UUID idComunidade) {
+        Comunidade comunidade = verificarComunidadeExiste(idComunidade);
+        return comunidadeMapper.comunidadeToComunidadeDto(comunidade);
 
     }
 
     public List<ComunidadeResponseDTO> findByNomeContaining(String nome) {
-        return comunidadeRepository.findByNomeContainingIgnoreCase(nome)
-                .stream().map(this::convertObjectToDto).collect(Collectors.toList());
+        return comunidadeMapper.comunidadesToComunidadeDto(
+                comunidadeRepository.findByNomeContainingIgnoreCase(nome));
     }
 
     public List<ComunidadeResponseDTO> findAll() {
@@ -127,27 +128,48 @@ public class ComunidadeService {
     }
 
     public List<ComunidadeResponseDTO> findByTipoComunidade(String tipo) {
-        return comunidadeRepository.findByTipoComunidade(TipoComunidade.valueOf(tipo.toUpperCase()))
-                .stream().map(this::convertObjectToDto).collect(Collectors.toList());
+        return comunidadeMapper.comunidadesToComunidadeDto(
+                comunidadeRepository.findByTipoComunidade(TipoComunidade.valueOf(tipo.toUpperCase())));
     }
 
     public List<ComunidadeResponseDTO> findByDescricao(String descricao) {
-        return comunidadeRepository.findByDescricaoIgnoreCaseContaining(descricao)
-                .stream().map(this::convertObjectToDto).collect(Collectors.toList());
+        return comunidadeMapper.comunidadesToComunidadeDto(
+                comunidadeRepository.findByDescricaoIgnoreCaseContaining(descricao));
     }
 
-    public List<ComunidadeResponseDTO> findComunidadesDoUsuario(UUID id) {
-        var usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
-        return usuarioComunidadeRepository.findByUsuario(usuario)
-                .stream()
-                .map(UsuarioComunidade::getComunidade)
-                .map(this::convertObjectToDto).collect(Collectors.toList());
+    public ComunidadeResponseDTO addUsuarioNaComunidade(UUID idComunidade, Integer senha) {
+        var usuario = securityService.obterUsuarioAutenticado();
+        usuarioNaoAutenticado(usuario);
 
+        Comunidade comunidade = verificarComunidadeExiste(idComunidade);
+
+        boolean usuarioJaMembro = comunidade.getUsuarioComunidade()
+                .stream().anyMatch(uc -> uc.getUsuario().equals(usuario));
+
+        if (usuarioJaMembro) {
+            throw new ConflictException("Usuario já é membro desta comunidade.");
+        }
+
+        if (comunidade.getTipoComunidade().equals(TipoComunidade.PRIVADO)
+                && senha == null) {
+            throw new ConflictException("Digite o codigo de acesso para entrar em comunidades privadas.");
+        }
+        if (comunidade.getTipoComunidade().equals(TipoComunidade.PRIVADO)
+                && !comunidade.getCodigoAcesso().equals(senha)) {
+            throw new ConflictException("Codigo de acesso digitado está incorreto!");
+        }
+
+        UsuarioComunidade usuarioComunidade =
+                new UsuarioComunidade(usuario, comunidade, RoleNaComunidade.MEMBRO);
+
+        comunidade.getUsuarioComunidade().add(usuarioComunidade);
+        return comunidadeMapper.comunidadeToComunidadeDto(comunidadeRepository.save(comunidade));
     }
 
-    public void deleteByIdCascade(UUID idUsuario, UUID idComunidade) {
-        var usuario =  verificarUsuarioExiste(idUsuario);
+    public void deleteByIdCascade(UUID idComunidade) {
+        var usuario = securityService.obterUsuarioAutenticado();
+        usuarioNaoAutenticado(usuario);
+
         var comunidade = verificarComunidadeExiste(idComunidade);
 
         var usuarioComunidade = usuarioComunidadeRepository.findByUsuario(usuario)
@@ -173,6 +195,12 @@ public class ComunidadeService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado."));
     }
 
+    private void usuarioNaoAutenticado(Usuario usuario) {
+        if (usuario == null) {
+            throw new EntityNotFoundException("Usuario não autenticado.");
+        }
+    }
+
     private void comunidadePrivada(Comunidade comunidade) {
         if (comunidade.getTipoComunidade() == null) {
             throw new EntityNotFoundException("Defina a comunidade como PUBLICO ou PRIVADO");
@@ -181,20 +209,5 @@ public class ComunidadeService {
                 && comunidade.getCodigoAcesso() == null) {
             throw new ConflictException("Campo senha precisa ser preenchido para comunidades privadas.");
         }
-    }
-
-    private ComunidadeResponseDTO convertObjectToDto(Comunidade comunidade) {
-        List<Mensagem> mensagens = mensagemRepository.findAll();
-
-        List<MensagemResponseDTO> mensagensResponse = mensagens
-                .stream().map(m -> new MensagemResponseDTO(m.getUsuario().getLogin(),
-                        m.getDataHoraMensagem(), m.getTexto())).collect(Collectors.toList());
-
-        ChatResponseDTO chat = new ChatResponseDTO(mensagensResponse);
-
-        return new ComunidadeResponseDTO(
-                comunidade.getId(), comunidade.getNome(), comunidade.getDescricao(),
-               comunidade.getTipoComunidade());
-
     }
 }

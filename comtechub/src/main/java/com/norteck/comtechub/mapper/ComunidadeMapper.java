@@ -17,7 +17,7 @@ public interface ComunidadeMapper {
 
     Comunidade comunidadeDtoToComunidade(ComunidadeRequestDTO dto);
     List<ComunidadeResponseDTO> comunidadesToComunidadeDto(List<Comunidade> comunidade);
-
+    ComunidadeResponseDTO comunidadeToComunidadeDto(Comunidade comunidade);
 
     default MensagemResponseDTO mensagemToMensagemDto(Mensagem mensagem) {
         return new MensagemResponseDTO(

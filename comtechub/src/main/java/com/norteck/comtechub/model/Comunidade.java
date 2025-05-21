@@ -32,12 +32,23 @@ public class Comunidade {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    @OneToMany(mappedBy = "comunidade", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "comunidade", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
     private List<UsuarioComunidade> usuarioComunidade;
 
     public Comunidade(){}
 
     public Comunidade(String nome, String descricao, Integer codigoAcesso, TipoComunidade tipoComunidade, Chat chat, Feed feed, List<UsuarioComunidade> usuarioComunidade) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.codigoAcesso = codigoAcesso;
+        this.tipoComunidade = tipoComunidade;
+        this.chat = chat;
+        this.feed = feed;
+        this.usuarioComunidade = usuarioComunidade;
+    }
+
+    public Comunidade(UUID id, String nome, String descricao, Integer codigoAcesso, TipoComunidade tipoComunidade, Chat chat, Feed feed, List<UsuarioComunidade> usuarioComunidade) {
+        this.id = id;
         this.nome = nome;
         this.descricao = descricao;
         this.codigoAcesso = codigoAcesso;

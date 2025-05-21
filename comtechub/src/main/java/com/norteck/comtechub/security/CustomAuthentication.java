@@ -22,21 +22,16 @@ public class CustomAuthentication implements Authentication {
 
     private Collection<? extends GrantedAuthority> buildAuthorities(Usuario usuario) {
         List<GrantedAuthority> auths = new ArrayList<>();
-        System.out.println("t1");
+
         if (usuario.getRole() != null) {
-            System.out.println("t2");
             auths.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRole().name()));
         }
         System.out.println("t3");
         if (usuario.getUsuarioComunidades() != null) {
-            System.out.println("t4");
             for (var uc : usuario.getUsuarioComunidades()) {
-                System.out.println("t5");
                 auths.add(new SimpleGrantedAuthority("ROLE_" + uc.getRoleNaComunidade().name()));
             }
-            System.out.println("t6");
         }
-        System.out.println("t7");
         return auths;
     }
 

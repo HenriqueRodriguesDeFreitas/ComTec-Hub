@@ -13,6 +13,7 @@ import com.norteck.comtechub.repository.ComunidadeRepository;
 import com.norteck.comtechub.repository.MensagemRepository;
 import com.norteck.comtechub.repository.UsuarioComunidadeRepository;
 import com.norteck.comtechub.repository.UsuarioRepository;
+import com.norteck.comtechub.security.SecurityService;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
@@ -27,22 +28,27 @@ public class ChatService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioComunidadeRepository usuarioComunidadeRepository;
     private final ChatMapper chatMapper;
+    private final SecurityService securityService;
 
     public ChatService(
             ComunidadeRepository comunidadeRepository,
             MensagemRepository mensagemRepository,
             UsuarioRepository usuarioRepository,
             UsuarioComunidadeRepository usuarioComunidadeRepository,
-            ChatMapper chatMapper) {
+            ChatMapper chatMapper,
+            SecurityService securityService) {
         this.comunidadeRepository = comunidadeRepository;
         this.mensagemRepository = mensagemRepository;
         this.usuarioRepository = usuarioRepository;
         this.usuarioComunidadeRepository = usuarioComunidadeRepository;
         this.chatMapper = chatMapper;
+        this.securityService = securityService;
     }
 
-    public ChatResponseDTO findChatComunidade(UUID idUsuario, UUID idComunidade) {
-        var usuario = verificarUsuarioExiste(idUsuario);
+    public ChatResponseDTO findChatComunidade(UUID idComunidade) {
+        var usuario = securityService.obterUsuarioAutenticado();
+        verificarUsuarioAutenticado(usuario);
+
         var comunidade = verificarComunidadeExiste(idComunidade);
 
         verificarUsuarioPertenceComunidade(comunidade, usuario);
@@ -56,8 +62,10 @@ public class ChatService {
         return chatMapper.toChatResponse(comunidade.getChat(), mensagens);
     }
 
-    public ChatResponseDTO findByData(UUID idUsuario, UUID idComunidade, String dataInicio) {
-        var usuario = verificarUsuarioExiste(idUsuario);
+    public ChatResponseDTO findByData(UUID idComunidade, String dataInicio) {
+        var usuario = securityService.obterUsuarioAutenticado();
+        verificarUsuarioAutenticado(usuario);
+
         var comunidade = verificarComunidadeExiste(idComunidade);
 
         verificarUsuarioPertenceComunidade(comunidade, usuario);
@@ -81,19 +89,13 @@ public class ChatService {
         return chatMapper.toChatResponse(comunidade.getChat(), mensagens);
     }
 
-    public ChatResponseDTO salvarMensagemNoChat(UUID idUsuario, UUID idComunidade, MensagemRequestDTO request) {
-        var usuario = verificarUsuarioExiste(idUsuario);
+    public ChatResponseDTO salvarMensagemNoChat(UUID idComunidade, MensagemRequestDTO request) {
+        var usuario = securityService.obterUsuarioAutenticado();
+        verificarUsuarioAutenticado(usuario);
+
         var comunidade = verificarComunidadeExiste(idComunidade);
 
-        if (comunidade.getTipoComunidade().equals(TipoComunidade.PRIVADO)) {
-            boolean pertence = usuarioComunidadeRepository.findByUsuario(usuario)
-                    .stream()
-                    .anyMatch(uc -> uc.getComunidade().getId().equals(comunidade.getId()));
-
-            if (!pertence) {
-                throw new ConflictException("Usuário não pertence a essa comunidade privada.");
-            }
-        }
+        verificarUsuarioPertenceComunidade(comunidade, usuario);
 
         Mensagem mensagem = new Mensagem();
         mensagem.setTexto(request.texto());
@@ -105,8 +107,8 @@ public class ChatService {
         return chatMapper.toChatResponse(comunidade.getChat(), mensagemRepository.findByChat(comunidade.getChat()));
     }
 
-    public ChatResponseDTO findByTexto(UUID idUsuario, UUID idComunidade, MensagemRequestDTO request) {
-        var usuario = verificarUsuarioExiste(idUsuario);
+    public ChatResponseDTO findByTexto(UUID idComunidade, MensagemRequestDTO request) {
+        var usuario = securityService.obterUsuarioAutenticado();
         var comunidade = verificarComunidadeExiste(idComunidade);
 
         verificarUsuarioPertenceComunidade(comunidade, usuario);
@@ -136,9 +138,9 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("Comunidade não encontrado."));
     }
 
-    private Usuario verificarUsuarioExiste(UUID idUsuario) {
-        return usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado."));
+    private void verificarUsuarioAutenticado(Usuario usuario) {
+        if (usuario.equals(null)) {
+            throw new EntityNotFoundException("Usuario não autenticado");
+        }
     }
-
 }

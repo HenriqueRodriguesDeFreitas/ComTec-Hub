@@ -5,8 +5,10 @@ import com.norteck.comtechub.dto.response.UsuarioResponseDTO;
 import com.norteck.comtechub.mapper.UsuarioMapper;
 import com.norteck.comtechub.model.Usuario;
 import com.norteck.comtechub.service.UsuarioService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class UsuarioController {
         this.usuarioMapper = usuarioMapper;
     }
 
+    @PermitAll
     @PostMapping
     public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequestDTO requestDTO) {
         var usuario = usuarioMapper.usuarioDtoToUsuario(requestDTO);
@@ -42,10 +45,16 @@ public class UsuarioController {
        return ResponseEntity.ok(usuarioService.findById(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") UUID id,
-                                    @RequestBody UsuarioRequestDTO requestDTO){
-        var usuarioAtualizado = usuarioService.update(id, usuarioMapper.usuarioDtoToUsuario(requestDTO));
+    @PreAuthorize("hasRole('CADASTRADO')")
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody UsuarioRequestDTO requestDTO){
+        var usuarioAtualizado = usuarioService.update(usuarioMapper.usuarioDtoToUsuario(requestDTO));
         return ResponseEntity.ok(usuarioMapper.usuarioToUsuarioDto(usuarioAtualizado));
+    }
+
+    @PreAuthorize("hasRole('CADASTRADO')")
+    @GetMapping("/Usuario")
+    public ResponseEntity<List<?>> findByComunidadesDoUsuario(){
+        return ResponseEntity.ok(usuarioService.findComunidadesDoUsuario());
     }
 }
