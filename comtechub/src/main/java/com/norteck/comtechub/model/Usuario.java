@@ -29,7 +29,7 @@ public class Usuario {
     @Column(nullable = false)
     private RoleUsuario role; // Agora é um campo único (não lista)
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<UsuarioComunidade> usuarioComunidades;
 
     @OneToMany(mappedBy = "usuario")

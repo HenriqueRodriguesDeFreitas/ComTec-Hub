@@ -4,13 +4,14 @@ import com.norteck.comtechub.model.Usuario;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class CustomAuthentication implements Authentication {
+public class CustomAuthentication implements Authentication, UserDetails {
 
     private final Usuario usuario;
     private final Collection<? extends GrantedAuthority> authorities;
@@ -26,7 +27,6 @@ public class CustomAuthentication implements Authentication {
         if (usuario.getRole() != null) {
             auths.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRole().name()));
         }
-        System.out.println("t3");
         if (usuario.getUsuarioComunidades() != null) {
             for (var uc : usuario.getUsuarioComunidades()) {
                 auths.add(new SimpleGrantedAuthority("ROLE_" + uc.getRoleNaComunidade().name()));
@@ -41,8 +41,38 @@ public class CustomAuthentication implements Authentication {
     }
 
     @Override
+    public String getPassword() {
+        return usuario.getSenha();
+    }
+
+    @Override
+    public String getUsername() {
+        return usuario.getLogin();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+
+    @Override
     public Object getCredentials() {
-        return null;
+        return this.getPassword();
     }
 
     @Override
@@ -52,7 +82,7 @@ public class CustomAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return usuario;
+        return this;
     }
 
     @Override
