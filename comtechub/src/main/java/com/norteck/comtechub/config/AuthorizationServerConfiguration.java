@@ -5,12 +5,15 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.norteck.comtechub.exceptions.custom.AcessoNegadoException;
 import com.norteck.comtechub.security.CustomAuthentication;
 import com.norteck.comtechub.security.CustomAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
@@ -42,6 +45,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 public class AuthorizationServerConfiguration {
 
     @Bean
@@ -71,8 +75,13 @@ public class AuthorizationServerConfiguration {
                 .oauth2ResourceServer(oauth2Rs
                         -> oauth2Rs.jwt(Customizer.withDefaults()))
                 .authenticationProvider(customAuthenticationProvider)
-                // Habilita login via formulário (para página de login padrão)
-                .formLogin(Customizer.withDefaults());
+                .formLogin(Customizer.withDefaults())
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            throw new AccessDeniedException("Acesso negado.");
+                        })
+                );
+
 
         return http.build();
     }
@@ -99,6 +108,7 @@ public class AuthorizationServerConfiguration {
     }
 
     //JWK -> Json Web Key
+    @Bean
     public JWKSource<SecurityContext> jwkSource() throws Exception {
         RSAKey rsaKey = gerarRSA();
         JWKSet jwkSet = new JWKSet(rsaKey);
@@ -146,7 +156,7 @@ public class AuthorizationServerConfiguration {
                 Authentication authentication = context.getPrincipal();
 
                 if (context.getPrincipal() instanceof CustomAuthentication) {
-                    CustomAuthentication userDetails = (CustomAuthentication) authentication;
+                    CustomAuthentication userDetails = (CustomAuthentication) authentication.getPrincipal();
 
                     Set<String> listAuth = userDetails.getAuthorities()
                             .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());

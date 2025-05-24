@@ -2,12 +2,13 @@ package com.norteck.comtechub.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "tb_mensagem")
-public class Mensagem {
+public class Mensagem implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

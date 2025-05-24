@@ -7,11 +7,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.security.auth.Subject;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class CustomAuthentication implements Authentication, UserDetails {
+public class CustomAuthentication implements Authentication, UserDetails, Serializable {
 
     private final Usuario usuario;
     private final Collection<? extends GrantedAuthority> authorities;
@@ -48,26 +49,6 @@ public class CustomAuthentication implements Authentication, UserDetails {
     @Override
     public String getUsername() {
         return usuario.getLogin();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
     }
 
     @Override

@@ -3,11 +3,12 @@ package com.norteck.comtechub.model;
 import com.norteck.comtechub.model.enums.RoleNaComunidade;
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
 @Table(name = "tb_usuario_comunidade")
-public class UsuarioComunidade {
+public class UsuarioComunidade implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

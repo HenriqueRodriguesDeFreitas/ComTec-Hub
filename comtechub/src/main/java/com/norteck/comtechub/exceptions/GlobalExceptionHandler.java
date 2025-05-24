@@ -1,19 +1,19 @@
 package com.norteck.comtechub.exceptions;
 
 import com.norteck.comtechub.dto.response.ExceptionResponseDTO;
+import com.norteck.comtechub.exceptions.custom.AcessoNegadoException;
 import com.norteck.comtechub.exceptions.custom.ConflictException;
 import com.norteck.comtechub.exceptions.custom.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,6 +38,17 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessException(AccessDeniedException ex){
+        ExceptionResponseDTO erro = new ExceptionResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Acesso negado",
+                "Você não tem permissão para acessar este recurso."
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -67,4 +78,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
 }

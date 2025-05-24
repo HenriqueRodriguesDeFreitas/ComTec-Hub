@@ -1,18 +1,13 @@
 package com.norteck.comtechub.security;
 
-import com.norteck.comtechub.exceptions.custom.ConflictException;
 import com.norteck.comtechub.exceptions.custom.EntityNotFoundException;
 import com.norteck.comtechub.model.Usuario;
-import com.norteck.comtechub.model.UsuarioComunidade;
 import com.norteck.comtechub.repository.UsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class CustomUserDetailsService implements UserDetailsService {

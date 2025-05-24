@@ -4,12 +4,13 @@ import com.norteck.comtechub.model.enums.RoleUsuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "tb_usuario")
-public class Usuario {
+public class Usuario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
